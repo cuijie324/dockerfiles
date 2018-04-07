@@ -1,15 +1,14 @@
-FROM alpine
-MAINTAINER Jessica Frazelle <jess@docker.com>
+FROM alpine:3.5
+LABEL maintainer "Jessie Frazelle <jess@linux.com>"
 
 ENV PATH /go/bin:/usr/local/go/bin:$PATH
 ENV GOPATH /go
+#ENV GO15VENDOREXPERIMENT 1
 
-RUN	apk update && apk add \
-	ca-certificates \
-	curl \
-	&& rm -rf /var/cache/apk/*
+RUN	apk --no-cache add \
+	ca-certificates
 
-ENV CONSUL_VERSION v0.6.0
+ENV CONSUL_VERSION v1.0.6
 
 RUN buildDeps=' \
 		bash \
@@ -26,17 +25,17 @@ RUN buildDeps=' \
 		zip \
 	' \
 	set -x \
-	&& apk update \
-	&& apk add $buildDeps \
-	&& go get github.com/Soulou/curl-unix-socket \
-	&& mv /go/bin/curl-unix-socket /usr/bin/ \
+	&& apk --no-cache add --repository https://dl-3.alpinelinux.org/alpine/edge/community $buildDeps \
 	&& mkdir -p /go/src/github.com/hashicorp /etc/consul.d \
-	&& git clone --branch ${CONSUL_VERSION} https://github.com/hashicorp/consul /go/src/github.com/hashicorp/consul \
+	&& git clone --depth 1 --branch ${CONSUL_VERSION} https://github.com/hashicorp/consul /go/src/github.com/hashicorp/consul \
 	&& cd /go/src/github.com/hashicorp/consul \
-	&& make all \
+	&& XC_ARCH="amd64" XC_OS="linux" make all \
 	&& mv bin/consul /usr/bin/ \
 	&& cd ui \
-	&& gem install bundler io-console --no-ri --no-rdoc \
+	&& gem install \
+		bundler \
+		io-console \
+		--no-ri --no-rdoc \
 	&& bundle install \
 	&& make dist \
 	&& mkdir -p /usr/src/consul \
@@ -44,7 +43,6 @@ RUN buildDeps=' \
 	&& mv static /usr/src/consul/ \
 	&& mv javascripts /usr/src/consul/ \
 	&& apk del $buildDeps \
-	&& rm -rf /var/cache/apk/* \
 	&& rm -rf /go \
 	&& echo "Build complete."
 

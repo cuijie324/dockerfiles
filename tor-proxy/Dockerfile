@@ -8,13 +8,10 @@
 # 	jess/tor-proxy
 #
 FROM alpine:latest
-MAINTAINER Jessica Frazelle <jess@docker.com>
+LABEL maintainer "Jessie Frazelle <jess@linux.com>"
 
-# Note: Tor is only in testing repo -> http://pkgs.alpinelinux.org/packages?package=emacs&repo=all&arch=x86_64
-RUN apk update && apk add \
-	tor \
-	--update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ \
-	&& rm -rf /var/cache/apk/*
+RUN apk --no-cache add \
+	tor
 
 # expose socks port
 EXPOSE 9050

@@ -1,10 +1,9 @@
-FROM python:latest
-MAINTAINER Justin Garrison <justinleegarrison@gmail.com>
+FROM python:3-alpine
+LABEL maintainer "Justin Garrison <justinleegarrison@gmail.com>"
 
-RUN apt-get update && apt-get install -y \
-	mplayer mpv \
-	--no-install-recommends \
-	&& rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache \
+	mplayer \
+	mpv
 
 RUN pip install mps-youtube
 

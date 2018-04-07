@@ -17,13 +17,10 @@
 # 		jess/tor-relay -f /etc/tor/torrc.exit
 #
 FROM alpine:latest
-MAINTAINER Jessica Frazelle <jess@docker.com>
+LABEL maintainer "Jessie Frazelle <jess@linux.com>"
 
-# Note: Tor is only in testing repo -> http://pkgs.alpinelinux.org/packages?package=emacs&repo=all&arch=x86_64
-RUN apk update && apk add \
-	tor \
-	--update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ \
-	&& rm -rf /var/cache/apk/*
+RUN apk --no-cache add \
+	tor
 
 # default port to used for incoming Tor connections
 # can be changed by changing 'ORPort' in torrc
@@ -38,5 +35,9 @@ COPY torrc.exit /etc/tor/torrc.exit
 RUN chown -R tor /etc/tor
 
 USER tor
+
+RUN mkdir /var/lib/tor/.tor
+VOLUME /var/lib/tor/.tor
+RUN chown -R tor /var/lib/tor/.tor
 
 ENTRYPOINT [ "tor" ]
